@@ -67,8 +67,9 @@ export async function fetchJobRecommendations(
     job_description: job.job_description?.slice(0, 300) ?? "",
   }))
 
-  const result = await generateText({
-    model: "anthropic/claude-sonnet-4",
+  const { output } = await generateText({
+    model: "anthropic/claude-sonnet-4.6",
+    output: Output.object({ schema: jobScoresSchema }),
     messages: [
       {
         role: "user",
@@ -77,14 +78,13 @@ Profile: ${JSON.stringify(profileData)}
 Jobs: ${JSON.stringify(jobsForScoring)}`,
       },
     ],
-    output: Output.object({ schema: jobScoresSchema }),
   })
 
-  if (!result.object) {
+  if (!output) {
     throw new Error("Failed to generate job scores")
   }
 
-  const scores = result.object
+  const scores = output
 
   // Step 4: Merge scores into jobs
   return jobs.map((job, index) => ({
