@@ -1,4 +1,4 @@
-# ProfileIQ — LinkedIn Profile Analyzer Agent
+# LinkProfile — LinkedIn Profile Analyzer Agent
 
 AI-powered agent that analyzes your LinkedIn profile and returns a skills
 breakdown, a custom banner design concept, and ranked job recommendations

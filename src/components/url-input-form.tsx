@@ -1,25 +1,27 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { Loader2, Upload, FileText, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { Loader2, Upload, FileText, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 const LOADING_MESSAGES = [
-  { time: 0, message: "Analyzing your profile..." },
-  { time: 5000, message: "Generating insights with AI..." },
-  { time: 12000, message: "Almost there..." },
+  { time: 0, message: 'Analyzing your profile...' },
+  { time: 5000, message: 'Generating insights with AI...' },
+  { time: 12000, message: 'Almost there...' },
 ];
 
 export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   const router = useRouter();
-  const [rawText, setRawText] = useState(defaultText ?? "");
+  const [rawText, setRawText] = useState(defaultText ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0].message);
+  const [loadingMessage, setLoadingMessage] = useState(
+    LOADING_MESSAGES[0].message,
+  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,10 +34,10 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     if (isLoading) {
       startTimeRef.current = Date.now();
       setLoadingMessage(LOADING_MESSAGES[0].message);
-      
+
       intervalRef.current = setInterval(() => {
         const elapsed = Date.now() - startTimeRef.current;
-        
+
         if (elapsed >= 12000) {
           setLoadingMessage(LOADING_MESSAGES[2].message);
         } else if (elapsed >= 5000) {
@@ -60,13 +62,13 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type !== "application/pdf") {
-      toast.error("Please upload a PDF file");
+    if (file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File must be less than 5MB");
+      toast.error('File must be less than 5MB');
       return;
     }
 
@@ -75,10 +77,10 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
 
-      const response = await fetch("/api/parse-pdf", {
-        method: "POST",
+      const response = await fetch('/api/parse-pdf', {
+        method: 'POST',
         body: formData,
       });
 
@@ -87,39 +89,39 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error("Server returned invalid response");
+        throw new Error('Server returned invalid response');
       }
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to parse PDF");
+        throw new Error(data.error || 'Failed to parse PDF');
       }
 
       setRawText(data.text);
-      toast.success("PDF parsed successfully");
+      toast.success('PDF parsed successfully');
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to parse PDF"
+        error instanceof Error ? error.message : 'Failed to parse PDF',
       );
       setFileName(null);
     } finally {
       setIsParsing(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
     }
   };
 
   const clearFile = () => {
     setFileName(null);
-    setRawText("");
+    setRawText('');
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
   };
 
   const validateInput = (): boolean => {
     if (rawText.trim().length < 50) {
-      toast.error("Please enter at least 50 characters of profile text");
+      toast.error('Please enter at least 50 characters of profile text');
       return false;
     }
     return true;
@@ -133,10 +135,10 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           rawText: rawText,
@@ -148,18 +150,18 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
       try {
         result = JSON.parse(text);
       } catch {
-        throw new Error("Server returned invalid response");
+        throw new Error('Server returned invalid response');
       }
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to analyze profile");
+        throw new Error(result.error || 'Failed to analyze profile');
       }
 
-      sessionStorage.setItem("profileiq_result", JSON.stringify(result));
-      router.push("/results");
+      sessionStorage.setItem('linkprofile_result', JSON.stringify(result));
+      router.push('/results');
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Something went wrong"
+        error instanceof Error ? error.message : 'Something went wrong',
       );
     } finally {
       setIsLoading(false);
@@ -169,7 +171,7 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
       {/* File Upload Section */}
-      <div className="rounded-lg border-2 border-dashed border-border p-4 transition-colors hover:border-muted-foreground/50">
+      <div className="border-border hover:border-muted-foreground/50 rounded-lg border-2 border-dashed p-4 transition-colors">
         <input
           ref={fileInputRef}
           type="file"
@@ -179,11 +181,11 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
           id="pdf-upload"
           disabled={isLoading || isParsing}
         />
-        
+
         {fileName ? (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <FileText className="text-muted-foreground h-4 w-4" />
               <span className="font-medium">{fileName}</span>
             </div>
             <Button
@@ -203,14 +205,16 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
           >
             {isParsing ? (
               <>
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Parsing PDF...</span>
+                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+                <span className="text-muted-foreground text-sm">
+                  Parsing PDF...
+                </span>
               </>
             ) : (
               <>
-                <Upload className="h-8 w-8 text-muted-foreground" />
+                <Upload className="text-muted-foreground h-8 w-8" />
                 <span className="text-sm font-medium">Upload LinkedIn PDF</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
                   or paste your profile text below
                 </span>
               </>
@@ -233,8 +237,10 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
         />
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Upload your LinkedIn profile PDF or paste your profile content. Include your headline, about section, experience, and skills for the best analysis.
+      <p className="text-muted-foreground text-xs">
+        Upload your LinkedIn profile PDF or paste your profile content. Include
+        your headline, about section, experience, and skills for the best
+        analysis.
       </p>
 
       <Button
@@ -249,12 +255,12 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
             Analyzing...
           </>
         ) : (
-          "Analyze profile"
+          'Analyze profile'
         )}
       </Button>
 
       {isLoading && (
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-center text-sm">
           {loadingMessage}
         </p>
       )}
