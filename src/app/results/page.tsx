@@ -1,97 +1,99 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-
-interface ProfileResult {
-  analysis?: string;
-  bannerConcept?: string;
-  jobMatches?: string[];
-}
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ResultsTabs } from "@/components/results-tabs"
+import { LoadingSkeleton } from "@/components/loading-skeleton"
+import type { AnalysisResult } from "@/types/analysis"
 
 export default function ResultsPage() {
-  const router = useRouter();
-  const [result, setResult] = useState<ProfileResult | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [result, setResult] = useState<AnalysisResult | null>(null)
+  const [error, setError] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("profileiq_result");
+    const stored = sessionStorage.getItem("profileiq_result")
     if (stored) {
       try {
-        setResult(JSON.parse(stored));
+        const parsed = JSON.parse(stored) as AnalysisResult
+        setResult(parsed)
       } catch {
-        router.push("/");
+        setError(true)
       }
     } else {
-      router.push("/");
+      setError(true)
     }
-    setIsLoading(false);
-  }, [router]);
+    setIsLoading(false)
+  }, [])
 
-  if (isLoading) {
+  const getScoreColor = (score: number) => {
+    if (score >= 70) return "bg-green-500/10 text-green-600 border-green-500/20"
+    if (score >= 50) return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+    return "bg-red-500/10 text-red-600 border-red-500/20"
+  }
+
+  if (isLoading || (!result && !error)) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="mx-auto w-full max-w-3xl px-4 py-12">
+        <LoadingSkeleton />
       </div>
-    );
+    )
   }
 
-  if (!result) {
-    return null;
+  if (error) {
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center px-4 py-24">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>No results found.</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-6 text-muted-foreground">
+              We couldn&apos;t find any analysis results. Please try analyzing a profile first.
+            </p>
+            <Link href="/">
+              <Button>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Go back
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
+
+  const profileScore = result?.analysis?.profileScore ?? 0
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-12">
-      <Link href="/">
-        <Button variant="ghost" className="mb-8">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to home
-        </Button>
-      </Link>
-
-      <div className="space-y-8">
-        <h1 className="text-3xl font-bold tracking-tight">Your Profile Analysis</h1>
-
-        {result.analysis && (
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold">Profile Breakdown</h2>
-            <div className="rounded-lg border border-border bg-muted/50 p-6">
-              <p className="whitespace-pre-wrap text-muted-foreground">
-                {result.analysis}
-              </p>
-            </div>
-          </section>
-        )}
-
-        {result.bannerConcept && (
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold">Banner Design Concept</h2>
-            <div className="rounded-lg border border-border bg-muted/50 p-6">
-              <p className="whitespace-pre-wrap text-muted-foreground">
-                {result.bannerConcept}
-              </p>
-            </div>
-          </section>
-        )}
-
-        {result.jobMatches && result.jobMatches.length > 0 && (
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold">Job Recommendations</h2>
-            <div className="rounded-lg border border-border bg-muted/50 p-6">
-              <ul className="space-y-2">
-                {result.jobMatches.map((job, index) => (
-                  <li key={index} className="text-muted-foreground">
-                    {job}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
+    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      {/* Top bar */}
+      <div className="mb-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Back to home</span>
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold tracking-tight">Results</h1>
+        </div>
+        {result?.analysis && (
+          <Badge
+            variant="outline"
+            className={getScoreColor(profileScore)}
+          >
+            Score: {profileScore}/100
+          </Badge>
         )}
       </div>
+
+      {/* Results tabs */}
+      <ResultsTabs data={result!} />
     </div>
-  );
+  )
 }
