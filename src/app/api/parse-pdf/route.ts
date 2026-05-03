@@ -1,9 +1,4 @@
-import * as pdfParse from "pdf-parse"
-
 export const maxDuration = 30
-
-// pdf-parse exports differently in ESM vs CJS
-const pdf = (pdfParse as unknown as { default?: typeof pdfParse }).default || pdfParse
 
 export async function POST(req: Request) {
   try {
@@ -26,9 +21,12 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // @ts-expect-error - pdf-parse has inconsistent types
+    // Dynamic import to handle CJS/ESM compatibility
+    const pdfParseModule = await import("pdf-parse")
+    const pdf = pdfParseModule.default ?? pdfParseModule
+
     const data = await pdf(buffer)
-    const text = (data.text as string).trim()
+    const text = String(data.text ?? "").trim()
 
     if (!text || text.length < 50) {
       return Response.json(
