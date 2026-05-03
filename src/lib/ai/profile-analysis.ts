@@ -21,22 +21,22 @@ const profileAnalysisSchema = z.object({
 export async function analyzeProfile(
   profileData: Record<string, unknown>
 ): Promise<ProfileAnalysis> {
-  const result = await generateText({
-    model: "anthropic/claude-sonnet-4",
-    system: "You are a professional career coach and LinkedIn optimization expert.",
+  const { output } = await generateText({
+    model: "anthropic/claude-sonnet-4.6",
+    output: Output.object({ schema: profileAnalysisSchema }),
     messages: [
       {
         role: "user",
-        content: `Analyze this LinkedIn profile and provide a comprehensive analysis.
+        content: `You are a professional career coach and LinkedIn optimization expert.
+Analyze this LinkedIn profile and provide a comprehensive analysis.
 Profile data: ${JSON.stringify(profileData, null, 2)}`,
       },
     ],
-    output: Output.object({ schema: profileAnalysisSchema }),
   })
 
-  if (!result.object) {
+  if (!output) {
     throw new Error("Failed to generate profile analysis")
   }
 
-  return result.object as ProfileAnalysis
+  return output as ProfileAnalysis
 }

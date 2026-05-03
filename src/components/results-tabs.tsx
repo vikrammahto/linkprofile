@@ -25,6 +25,11 @@ export const ResultsTabs = ({ data }: { data: AnalysisResult }) => {
               <p className="text-muted-foreground">
                 Profile analysis unavailable.
               </p>
+              {data.errors?.analysis && (
+                <p className="mt-2 text-sm text-red-500">
+                  Error: {data.errors.analysis}
+                </p>
+              )}
             </CardContent>
           </Card>
         )}
@@ -39,6 +44,11 @@ export const ResultsTabs = ({ data }: { data: AnalysisResult }) => {
               <p className="text-muted-foreground">
                 Banner concept unavailable.
               </p>
+              {data.errors?.banner && (
+                <p className="mt-2 text-sm text-red-500">
+                  Error: {data.errors.banner}
+                </p>
+              )}
             </CardContent>
           </Card>
         )}
@@ -53,6 +63,11 @@ export const ResultsTabs = ({ data }: { data: AnalysisResult }) => {
               <p className="text-muted-foreground">
                 Job matches unavailable.
               </p>
+              {data.errors?.jobs && (
+                <p className="mt-2 text-sm text-red-500">
+                  Error: {data.errors.jobs}
+                </p>
+              )}
             </CardContent>
           </Card>
         )}

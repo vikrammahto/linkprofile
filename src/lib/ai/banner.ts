@@ -15,8 +15,9 @@ const bannerConceptSchema = z.object({
 export async function generateBannerConcept(
   profileData: Record<string, unknown>
 ): Promise<BannerConcept> {
-  const result = await generateText({
-    model: "anthropic/claude-sonnet-4",
+  const { output } = await generateText({
+    model: "anthropic/claude-sonnet-4.6",
+    output: Output.object({ schema: bannerConceptSchema }),
     messages: [
       {
         role: "user",
@@ -26,12 +27,11 @@ The imagePrompt should be detailed enough for an AI image generator.
 Profile: ${JSON.stringify(profileData)}`,
       },
     ],
-    output: Output.object({ schema: bannerConceptSchema }),
   })
 
-  if (!result.object) {
+  if (!output) {
     throw new Error("Failed to generate banner concept")
   }
 
-  return result.object as BannerConcept
+  return output as BannerConcept
 }

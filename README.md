@@ -17,7 +17,7 @@ Zero to Agent by Vercel — v0 + MCPs track
 ## Tech stack
 
 Next.js 15, TypeScript, Tailwind CSS, shadcn/ui,
-Vercel AI SDK + AI Gateway (Claude), Proxycurl, JSearch API, Vercel
+Vercel AI SDK + AI Gateway (Claude Sonnet 4), Vercel
 
 ## Local setup
 
@@ -33,10 +33,10 @@ npx vercel --prod
 
 ## Architecture
 
-The /api/analyze route acts as an orchestrator agent: it fetches the
-LinkedIn profile via Proxycurl, then fans out three parallel AI calls
-using Vercel AI SDK with AI Gateway (Claude Sonnet 4) for profile analysis,
-banner generation, and job scoring via Promise.allSettled. Results are
-stored in sessionStorage for the results page to consume.
+Users paste their LinkedIn profile text directly (no scraping needed).
+The /api/analyze route acts as an orchestrator agent that fans out three
+parallel AI calls using Vercel AI SDK with AI Gateway (Claude Sonnet 4)
+for profile analysis, banner generation, and job scoring via Promise.allSettled.
+Results are stored in sessionStorage for the results page to consume.
 
-Note: AI calls use Vercel AI Gateway which is free in v0 - no API keys needed.
+Note: All AI calls use Vercel AI Gateway which is free in v0 - no API keys needed!

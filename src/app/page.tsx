@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { DemoBanner } from "@/components/demo-banner";
 
 export default function Home() {
-  const [demoUrl, setDemoUrl] = useState("");
+  const [demoText, setDemoText] = useState("");
 
   return (
     <>
-      <DemoBanner onUseDemo={setDemoUrl} />
+      <DemoBanner onUseDemo={setDemoText} />
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-24">
         <div className="mx-auto w-full max-w-2xl space-y-8 text-center">
           <div className="space-y-4">
@@ -18,12 +18,12 @@ export default function Home() {
               Analyze your LinkedIn profile with AI
             </h1>
             <p className="text-pretty text-lg text-muted-foreground">
-              Get a profile breakdown, banner design concept, and job
+              Paste your profile text and get a breakdown, banner design concept, and job
               recommendations in 30 seconds.
             </p>
           </div>
 
-          <UrlInputForm defaultUrl={demoUrl} />
+          <UrlInputForm defaultText={demoText} />
 
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Badge variant="secondary">Profile analysis</Badge>
