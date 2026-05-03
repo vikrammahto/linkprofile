@@ -5,28 +5,25 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 const LOADING_MESSAGES = [
-  { time: 0, message: "Fetching profile data..." },
-  { time: 5000, message: "Analyzing with AI..." },
+  { time: 0, message: "Analyzing your profile..." },
+  { time: 5000, message: "Generating insights with AI..." },
   { time: 12000, message: "Almost there..." },
 ];
 
-export const UrlInputForm = ({ defaultUrl }: { defaultUrl?: string }) => {
+export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   const router = useRouter();
-  const [isPasteMode, setIsPasteMode] = useState(false);
-  const [url, setUrl] = useState(defaultUrl ?? "");
-  const [rawText, setRawText] = useState("");
+  const [rawText, setRawText] = useState(defaultText ?? "");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0].message);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    if (defaultUrl) setUrl(defaultUrl);
-  }, [defaultUrl]);
+    if (defaultText) setRawText(defaultText);
+  }, [defaultText]);
 
   useEffect(() => {
     if (isLoading) {
@@ -57,16 +54,9 @@ export const UrlInputForm = ({ defaultUrl }: { defaultUrl?: string }) => {
   }, [isLoading]);
 
   const validateInput = (): boolean => {
-    if (!isPasteMode) {
-      if (!url.includes("linkedin.com/in/")) {
-        toast.error("Please enter a valid LinkedIn profile URL");
-        return false;
-      }
-    } else {
-      if (rawText.length <= 50) {
-        toast.error("Please enter at least 50 characters of profile text");
-        return false;
-      }
+    if (rawText.trim().length < 50) {
+      toast.error("Please enter at least 50 characters of profile text");
+      return false;
     }
     return true;
   };
@@ -85,8 +75,7 @@ export const UrlInputForm = ({ defaultUrl }: { defaultUrl?: string }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          url: isPasteMode ? undefined : url,
-          rawText: isPasteMode ? rawText : undefined,
+          rawText: rawText,
         }),
       });
 
@@ -109,41 +98,23 @@ export const UrlInputForm = ({ defaultUrl }: { defaultUrl?: string }) => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
-      {!isPasteMode ? (
-        <Input
-          type="url"
-          placeholder="https://linkedin.com/in/yourprofile"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="h-12 text-base"
-          disabled={isLoading}
-        />
-      ) : (
-        <Textarea
-          placeholder="Paste your LinkedIn About or Experience..."
-          value={rawText}
-          onChange={(e) => setRawText(e.target.value)}
-          className="min-h-32 resize-none text-base"
-          disabled={isLoading}
-        />
-      )}
-
-      <button
-        type="button"
-        onClick={() => setIsPasteMode(!isPasteMode)}
-        className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+      <Textarea
+        placeholder="Paste your LinkedIn profile text here (About section, Experience, Skills, etc.)"
+        value={rawText}
+        onChange={(e) => setRawText(e.target.value)}
+        className="min-h-40 resize-none text-base"
         disabled={isLoading}
-      >
-        {isPasteMode
-          ? "Or enter your LinkedIn URL instead"
-          : "Or paste your profile text instead"}
-      </button>
+      />
+
+      <p className="text-xs text-muted-foreground">
+        Copy your profile content from LinkedIn and paste it above. Include your headline, about section, experience, and skills for the best analysis.
+      </p>
 
       <Button
         type="submit"
         size="lg"
         className="w-full"
-        disabled={isLoading}
+        disabled={isLoading || rawText.trim().length < 50}
       >
         {isLoading ? (
           <>
