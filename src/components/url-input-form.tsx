@@ -82,7 +82,13 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
         body: formData,
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Server returned invalid response");
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to parse PDF");
@@ -137,12 +143,18 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
         }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to analyze profile");
+      const text = await response.text();
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error("Server returned invalid response");
       }
 
-      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to analyze profile");
+      }
+
       sessionStorage.setItem("profileiq_result", JSON.stringify(result));
       router.push("/results");
     } catch (error) {
