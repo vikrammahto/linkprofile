@@ -1,41 +1,37 @@
-import Anthropic from "@anthropic-ai/sdk"
+import { generateText, Output } from "ai"
+import { z } from "zod"
 import type { BannerConcept } from "@/types/analysis"
 
-const anthropic = new Anthropic()
+const bannerConceptSchema = z.object({
+  theme: z.enum(["minimal", "bold", "creative", "corporate"]),
+  primaryColor: z.string(),
+  accentColor: z.string(),
+  tagline: z.string(),
+  visualElements: z.array(z.string()),
+  layoutDescription: z.string(),
+  imagePrompt: z.string(),
+})
 
 export async function generateBannerConcept(
   profileData: Record<string, unknown>
 ): Promise<BannerConcept> {
-  const message = await anthropic.messages.create({
-    model: "claude-opus-4-5",
-    max_tokens: 800,
+  const result = await generateText({
+    model: "anthropic/claude-sonnet-4",
     messages: [
       {
         role: "user",
-        content: `Based on this LinkedIn profile generate a banner design concept.
-Return ONLY valid JSON with no markdown and no backticks matching:
-{
-  "theme": "minimal|bold|creative|corporate",
-  "primaryColor": "hex string",
-  "accentColor": "hex string",
-  "tagline": "string max 8 words",
-  "visualElements": ["string"],
-  "layoutDescription": "string",
-  "imagePrompt": "string detailed prompt for AI image generator"
-}
+        content: `Based on this LinkedIn profile generate a creative banner design concept for their LinkedIn profile header.
+The tagline should be max 8 words and capture their professional essence.
+The imagePrompt should be detailed enough for an AI image generator.
 Profile: ${JSON.stringify(profileData)}`,
       },
     ],
+    output: Output.object({ schema: bannerConceptSchema }),
   })
 
-  const textContent = message.content.find((block) => block.type === "text")
-  if (!textContent || textContent.type !== "text") {
-    throw new Error("No text response from Claude")
+  if (!result.object) {
+    throw new Error("Failed to generate banner concept")
   }
 
-  try {
-    return JSON.parse(textContent.text) as BannerConcept
-  } catch {
-    throw new Error("Failed to parse banner concept JSON: " + textContent.text)
-  }
+  return result.object as BannerConcept
 }

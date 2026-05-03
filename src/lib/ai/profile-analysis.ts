@@ -1,41 +1,42 @@
-import Anthropic from "@anthropic-ai/sdk"
+import { generateText, Output } from "ai"
+import { z } from "zod"
 import type { ProfileAnalysis } from "@/types/analysis"
 
-const anthropic = new Anthropic()
+const profileAnalysisSchema = z.object({
+  summary: z.string(),
+  topSkills: z.array(z.string()),
+  strengths: z.array(z.object({
+    label: z.string(),
+    description: z.string(),
+  })),
+  gaps: z.array(z.object({
+    label: z.string(),
+    suggestion: z.string(),
+  })),
+  seniorityLevel: z.enum(["Junior", "Mid", "Senior", "Lead", "Executive"]),
+  industryFit: z.array(z.string()),
+  profileScore: z.number().min(0).max(100),
+})
 
 export async function analyzeProfile(
   profileData: Record<string, unknown>
 ): Promise<ProfileAnalysis> {
-  const message = await anthropic.messages.create({
-    model: "claude-opus-4-5",
-    max_tokens: 1500,
+  const result = await generateText({
+    model: "anthropic/claude-sonnet-4",
     system: "You are a professional career coach and LinkedIn optimization expert.",
     messages: [
       {
         role: "user",
-        content: `Analyze this LinkedIn profile and return ONLY valid JSON with no markdown and no backticks, matching this exact schema:
-{
-  "summary": "string",
-  "topSkills": ["string"],
-  "strengths": [{ "label": "string", "description": "string" }],
-  "gaps": [{ "label": "string", "suggestion": "string" }],
-  "seniorityLevel": "Junior|Mid|Senior|Lead|Executive",
-  "industryFit": ["string"],
-  "profileScore": "number 0-100"
-}
+        content: `Analyze this LinkedIn profile and provide a comprehensive analysis.
 Profile data: ${JSON.stringify(profileData, null, 2)}`,
       },
     ],
+    output: Output.object({ schema: profileAnalysisSchema }),
   })
 
-  const textContent = message.content.find((block) => block.type === "text")
-  if (!textContent || textContent.type !== "text") {
-    throw new Error("No text response from Claude")
+  if (!result.object) {
+    throw new Error("Failed to generate profile analysis")
   }
 
-  try {
-    return JSON.parse(textContent.text) as ProfileAnalysis
-  } catch {
-    throw new Error("Failed to parse profile analysis JSON: " + textContent.text)
-  }
+  return result.object as ProfileAnalysis
 }
