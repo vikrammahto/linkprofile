@@ -47,8 +47,8 @@ export const LoadingSkeleton = () => {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-purple-600">
-          <Sparkles className="h-8 w-8 animate-pulse text-white" />
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-600">
+          <Sparkles className="h-7 w-7 animate-pulse text-white" />
         </div>
         <h2 className="text-xl font-semibold">Analyzing your profile</h2>
         <p className="mt-2 text-muted-foreground">{loadingSteps[currentStep]}</p>
@@ -56,9 +56,9 @@ export const LoadingSkeleton = () => {
 
       {/* Progress bar */}
       <div className="space-y-3">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-purple-600 transition-all duration-100 ease-linear"
+            className="h-full rounded-full bg-gradient-to-r from-primary to-indigo-500 transition-all duration-100 ease-linear"
             style={{ width: `${progress}%` }}
           />
         </div>

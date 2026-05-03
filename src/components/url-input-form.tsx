@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Loader2, Upload, FileText, X, Sparkles } from 'lucide-react';
+import { Loader2, Upload, FileText, X, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -38,19 +38,21 @@ Lakeside School, Seattle`;
 
 export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'upload' | 'paste'>('upload');
   const [rawText, setRawText] = useState(defaultText ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [loadingMessage, setLoadingMessage] = useState(
-    LOADING_MESSAGES[0].message,
-  );
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0].message);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (defaultText) setRawText(defaultText);
+    if (defaultText) {
+      setRawText(defaultText);
+      setActiveTab('paste');
+    }
   }, [defaultText]);
 
   useEffect(() => {
@@ -122,9 +124,7 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
       setRawText(data.text);
       toast.success('PDF parsed successfully');
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to parse PDF',
-      );
+      toast.error(error instanceof Error ? error.message : 'Failed to parse PDF');
       setFileName(null);
     } finally {
       setIsParsing(false);
@@ -145,6 +145,7 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   const loadDemo = () => {
     setRawText(DEMO_PROFILE);
     setFileName(null);
+    setActiveTab('paste');
     toast.success('Demo profile loaded');
   };
 
@@ -166,12 +167,8 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          rawText: rawText,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rawText }),
       });
 
       const text = await response.text();
@@ -189,9 +186,7 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
       sessionStorage.setItem('linkprofile_result', JSON.stringify(result));
       router.push('/results');
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Something went wrong',
-      );
+      toast.error(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -199,111 +194,160 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* File Upload Section */}
-      <div className="rounded-xl border border-border/50 bg-secondary/30 p-5 transition-colors hover:border-border">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          onChange={handleFileChange}
-          className="hidden"
-          id="pdf-upload"
-          disabled={isLoading || isParsing}
-        />
-
-        {fileName ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <FileText className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium">{fileName}</p>
-                <p className="text-xs text-muted-foreground">PDF uploaded</p>
-              </div>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={clearFile}
-              disabled={isLoading}
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        ) : (
-          <label
-            htmlFor="pdf-upload"
-            className="flex cursor-pointer flex-col items-center gap-3 py-4"
-          >
-            {isParsing ? (
-              <>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
-                <div className="text-center">
-                  <p className="font-medium">Parsing PDF...</p>
-                  <p className="text-sm text-muted-foreground">This may take a moment</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-dashed border-border bg-secondary/50 transition-colors group-hover:border-primary">
-                  <Upload className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <div className="text-center">
-                  <p className="font-medium">Upload your LinkedIn PDF</p>
-                  <p className="text-sm text-muted-foreground">
-                    or paste your profile text below
-                  </p>
-                </div>
-              </>
-            )}
-          </label>
-        )}
+      {/* Tabs */}
+      <div className="flex rounded-lg border border-border bg-muted/50 p-1">
+        <button
+          type="button"
+          onClick={() => setActiveTab('upload')}
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+            activeTab === 'upload'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Upload PDF
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('paste')}
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+            activeTab === 'paste'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Paste Text
+        </button>
       </div>
 
-      {/* Text Input Section */}
-      <div className="relative">
+      {/* Upload Section */}
+      {activeTab === 'upload' && (
+        <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-6 transition-colors hover:border-primary/40">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            className="hidden"
+            id="pdf-upload"
+            disabled={isLoading || isParsing}
+          />
+
+          {fileName ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">{fileName}</p>
+                  <p className="text-xs text-muted-foreground">PDF uploaded</p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={clearFile}
+                disabled={isLoading}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <label htmlFor="pdf-upload" className="flex cursor-pointer flex-col items-center gap-3">
+              {isParsing ? (
+                <>
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-medium">Parsing PDF...</p>
+                    <p className="text-sm text-muted-foreground">This may take a moment</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-card">
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-medium">Upload LinkedIn PDF</p>
+                    <p className="text-sm text-muted-foreground">Max 5MB, PDF format</p>
+                  </div>
+                </>
+              )}
+            </label>
+          )}
+        </div>
+      )}
+
+      {/* Paste Section */}
+      {activeTab === 'paste' && (
+        <div className="space-y-3">
+          <div className="relative">
+            <Textarea
+              placeholder="Paste your LinkedIn profile (About, Experience, Skills...)"
+              value={rawText}
+              onChange={(e) => {
+                setRawText(e.target.value);
+                if (fileName) setFileName(null);
+              }}
+              className="min-h-40 resize-none rounded-xl border-border bg-muted/30 text-base placeholder:text-muted-foreground/60 focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+              disabled={isLoading || isParsing}
+            />
+            <div className="absolute bottom-3 right-3">
+              <span className="text-xs text-muted-foreground">{rawText.length} chars</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Include headline, about, experience, and skills for best results
+            </p>
+            <button
+              type="button"
+              onClick={loadDemo}
+              className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
+              disabled={isLoading || isParsing}
+            >
+              Try demo
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Divider with OR */}
+      {activeTab === 'upload' && (
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">or paste text below</span>
+          </div>
+        </div>
+      )}
+
+      {/* Text input for upload tab */}
+      {activeTab === 'upload' && (
         <Textarea
-          placeholder="Paste your LinkedIn profile text here (About section, Experience, Skills, etc.)"
+          placeholder="Paste your LinkedIn profile text here..."
           value={rawText}
           onChange={(e) => {
             setRawText(e.target.value);
             if (fileName) setFileName(null);
           }}
-          className="min-h-36 resize-none rounded-xl border-border/50 bg-secondary/30 text-base placeholder:text-muted-foreground/60 focus:border-primary/50 focus:ring-primary/20"
+          className="min-h-24 resize-none rounded-xl border-border bg-muted/30 text-sm placeholder:text-muted-foreground/60 focus:border-primary/50"
           disabled={isLoading || isParsing}
         />
-        <div className="absolute bottom-3 right-3">
-          <span className="text-xs text-muted-foreground">
-            {rawText.length} characters
-          </span>
-        </div>
-      </div>
-
-      {/* Helper text and demo button */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Include headline, about, experience, and skills for best results.
-        </p>
-        <button
-          type="button"
-          onClick={loadDemo}
-          className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
-          disabled={isLoading || isParsing}
-        >
-          Try demo
-        </button>
-      </div>
+      )}
 
       {/* Submit Button */}
       <Button
         type="submit"
         size="lg"
-        className="w-full gap-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-base font-semibold shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50"
+        className="gradient-btn w-full gap-2 rounded-xl border-0 py-6 text-base font-semibold text-white disabled:opacity-50"
         disabled={isLoading || isParsing || rawText.trim().length < 50}
       >
         {isLoading ? (
@@ -314,19 +358,23 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
         ) : (
           <>
             <Sparkles className="h-5 w-5" />
-            Analyze with AI
+            Analyze Profile
           </>
         )}
       </Button>
 
-      {/* Loading progress indicator */}
+      {/* Loading progress */}
       {isLoading && (
-        <div className="space-y-2">
-          <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
-            <div className="shimmer h-full w-full rounded-full bg-primary/30" />
-          </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="shimmer h-full w-full rounded-full bg-primary/30" />
         </div>
       )}
+
+      {/* Trust note */}
+      <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+        <Lock className="h-3 w-3" />
+        <span>Your data is secure and not stored</span>
+      </div>
     </form>
   );
 };

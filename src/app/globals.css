@@ -1,25 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --primary: #5b5bd6;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --ring: #5b5bd6;
+  --radius: 0.75rem;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --destructive: #ef4444;
+}
+
+.dark {
+  --background: #0a0a0b;
   --foreground: #fafafa;
   --muted: #18181b;
   --muted-foreground: #a1a1aa;
   --border: #27272a;
   --input: #27272a;
-  --primary: #a855f7;
+  --primary: #7c7cff;
   --primary-foreground: #ffffff;
   --secondary: #18181b;
   --secondary-foreground: #fafafa;
   --accent: #27272a;
   --accent-foreground: #fafafa;
-  --ring: #a855f7;
-  --radius: 0.625rem;
-  --card: #0f0f11;
+  --ring: #7c7cff;
+  --card: #111113;
   --card-foreground: #fafafa;
-  --success: #22c55e;
-  --warning: #eab308;
-  --destructive: #ef4444;
 }
 
 @theme inline {
@@ -45,58 +63,60 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Subtle grid background */
-.grid-bg {
-  background-image: 
-    linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
-  background-size: 64px 64px;
+/* Subtle dot pattern background */
+.dot-pattern {
+  background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Gradient glow effect */
-.glow {
-  position: relative;
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #5b5bd6 0%, #3b82f6 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.glow::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, var(--primary), transparent 50%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+/* Glass card effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Hero gradient blob */
-.hero-glow {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 800px;
-  height: 600px;
-  background: radial-gradient(ellipse at center, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+.dark .glass-card {
+  background: rgba(17, 17, 19, 0.8);
+  border: 1px solid rgba(39, 39, 42, 0.8);
 }
 
-/* Shimmer animation for loading states */
+/* Gradient button */
+.gradient-btn {
+  background: linear-gradient(135deg, #5b5bd6 0%, #4f46e5 100%);
+  transition: all 0.2s ease;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  box-shadow: 0 8px 30px -8px rgba(91, 91, 214, 0.4);
+}
+
+/* Shimmer animation */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(168, 85, 247, 0.1) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(91, 91, 214, 0.1) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+}
+
+/* Soft shadow */
+.soft-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.soft-shadow-lg {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }

@@ -2,31 +2,33 @@
 
 import { useState } from 'react';
 import { UrlInputForm } from '@/components/url-input-form';
-import { Zap, Target, Palette, Briefcase, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { BarChart3, Palette, Briefcase, Shield, Zap, Users } from 'lucide-react';
 
 const features = [
   {
-    icon: Target,
+    icon: BarChart3,
     title: 'Profile Analysis',
-    description: 'Get detailed insights on your profile strength and areas for improvement',
+    description: 'Get a comprehensive breakdown of your skills, strengths, and areas for improvement.',
+    color: 'bg-blue-50 text-blue-600',
   },
   {
     icon: Palette,
-    title: 'Banner Design',
-    description: 'AI-generated banner concepts tailored to your professional brand',
+    title: 'Banner Concepts',
+    description: 'Receive personalized LinkedIn banner design ideas that match your professional brand.',
+    color: 'bg-purple-50 text-purple-600',
   },
   {
     icon: Briefcase,
-    title: 'Job Matching',
-    description: 'Discover job opportunities that align with your skills and experience',
+    title: 'Job Matches',
+    description: 'Discover job opportunities aligned with your experience, skills, and career goals.',
+    color: 'bg-emerald-50 text-emerald-600',
   },
 ];
 
-const benefits = [
-  'AI-powered analysis in seconds',
-  'Actionable improvement suggestions',
-  'Professional banner concepts',
-  'Personalized job recommendations',
+const steps = [
+  { number: '01', title: 'Upload or paste', description: 'Share your LinkedIn profile via PDF or text' },
+  { number: '02', title: 'AI analyzes', description: 'Our AI processes your profile in seconds' },
+  { number: '03', title: 'Get insights', description: 'Receive actionable recommendations' },
 ];
 
 export default function Home() {
@@ -34,65 +36,94 @@ export default function Home() {
 
   return (
     <div className="relative">
-      {/* Hero gradient glow */}
-      <div className="hero-glow" />
-      
-      {/* Grid background */}
-      <div className="grid-bg absolute inset-0" />
-
       {/* Hero Section */}
-      <section className="relative px-6 pb-24 pt-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col items-center text-center">
-            {/* Badge */}
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm text-primary">
-              <Zap className="h-3.5 w-3.5" />
-              <span>AI-Powered Profile Analysis</span>
-            </div>
+      <section className="relative overflow-hidden px-6 pb-20 pt-16 sm:pb-28 sm:pt-24">
+        {/* Background dot pattern */}
+        <div className="dot-pattern absolute inset-0 opacity-40" />
+        
+        <div className="relative mx-auto max-w-6xl">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-16">
+            {/* Left: Hero content */}
+            <div className="flex-1 text-center lg:pt-8 lg:text-left">
+              {/* Badge */}
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-sm font-medium text-primary">
+                <Zap className="h-3.5 w-3.5" />
+                AI-powered LinkedIn analysis
+              </div>
 
-            {/* Headline */}
-            <h1 className="max-w-4xl text-balance text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-              Optimize your LinkedIn profile with{' '}
-              <span className="bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                AI insights
-              </span>
-            </h1>
+              {/* Headline */}
+              <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                Analyze your LinkedIn profile with{' '}
+                <span className="gradient-text">AI</span>
+              </h1>
 
-            {/* Subheadline */}
-            <p className="mt-6 max-w-2xl text-pretty text-lg text-muted-foreground sm:text-xl">
-              Upload your LinkedIn profile and get instant analysis, professional banner 
-              concepts, and personalized job recommendations powered by AI.
-            </p>
+              {/* Subheadline */}
+              <p className="mx-auto mt-6 max-w-xl text-pretty text-lg text-muted-foreground lg:mx-0">
+                Get a complete profile breakdown, banner design ideas, and job 
+                recommendations in seconds.
+              </p>
 
-            {/* Benefits list */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              {benefits.map((benefit) => (
-                <div key={benefit} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  <span>{benefit}</span>
+              {/* Trust indicators */}
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 lg:justify-start">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Shield className="h-4 w-4 text-success" />
+                  <span>Your data is secure</span>
                 </div>
-              ))}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span>10K+ profiles analyzed</span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Form Section */}
-          <div className="mx-auto mt-16 max-w-2xl">
-            <div className="glow rounded-2xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm sm:p-8">
-              <UrlInputForm defaultText={demoText} />
+            {/* Right: Form card */}
+            <div className="mx-auto mt-12 w-full max-w-lg lg:mx-0 lg:mt-0">
+              <div className="glass-card soft-shadow-lg rounded-2xl p-6 sm:p-8">
+                <UrlInputForm defaultText={demoText} />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="relative border-t border-border/50 px-6 py-24">
+      {/* How it works */}
+      <section id="how-it-works" className="border-y border-border/60 bg-muted/30 px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-16 text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <div className="mb-12 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              How it works
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Get started in three simple steps
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            {steps.map((step, index) => (
+              <div key={step.number} className="relative text-center">
+                {index < steps.length - 1 && (
+                  <div className="absolute left-1/2 top-8 hidden h-px w-full bg-border md:block" />
+                )}
+                <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-card soft-shadow border border-border/60">
+                  <span className="text-xl font-bold text-primary">{step.number}</span>
+                </div>
+                <h3 className="mb-2 font-semibold">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Everything you need to stand out
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Comprehensive tools to analyze, optimize, and elevate your professional presence.
+            <p className="mt-3 text-muted-foreground">
+              Comprehensive AI-powered tools to optimize your professional presence
             </p>
           </div>
 
@@ -100,37 +131,33 @@ export default function Home() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="group rounded-xl border border-border/50 bg-card/30 p-6 transition-all hover:border-primary/30 hover:bg-card/50"
+                className="group rounded-xl border border-border/60 bg-card p-6 soft-shadow transition-all hover:border-primary/30 hover:shadow-md"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${feature.color}`}>
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   {feature.description}
                 </p>
-                <div className="mt-4 flex items-center text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                  Learn more <ArrowRight className="ml-1 h-4 w-4" />
-                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Social Proof Section */}
-      <section className="relative border-t border-border/50 px-6 py-16">
-        <div className="mx-auto max-w-6xl">
-          <p className="mb-8 text-center text-sm font-medium uppercase tracking-wider text-muted-foreground">
-            Trusted by professionals worldwide
+      {/* CTA Section */}
+      <section className="border-t border-border/60 bg-gradient-to-b from-primary/5 to-transparent px-6 py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Ready to optimize your profile?
+          </h2>
+          <p className="mt-3 text-muted-foreground">
+            Join thousands of professionals who have improved their LinkedIn presence with AI-powered insights.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-50">
-            {['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple'].map((company) => (
-              <span key={company} className="text-xl font-semibold text-muted-foreground">
-                {company}
-              </span>
-            ))}
-          </div>
+          <button className="gradient-btn mt-8 rounded-xl px-8 py-3 text-base font-semibold text-white">
+            Get Started Free
+          </button>
         </div>
       </section>
     </div>
