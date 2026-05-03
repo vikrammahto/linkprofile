@@ -1,51 +1,30 @@
-import { NextResponse } from "next/server";
+import { fetchLinkedInProfile } from "@/lib/proxycurl"
+import { analyzeProfile } from "@/lib/ai/profile-analysis"
+import { generateBannerConcept } from "@/lib/ai/banner"
+import { fetchJobRecommendations } from "@/lib/jobs"
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { url, rawText } = body;
+export const maxDuration = 60
 
-    // Validate input
-    if (!url && !rawText) {
-      return NextResponse.json(
-        { message: "Please provide a LinkedIn URL or profile text" },
-        { status: 400 }
-      );
-    }
+export async function POST(req: Request) {
+  const { url, rawText } = await req.json()
 
-    if (url && !url.includes("linkedin.com/in/")) {
-      return NextResponse.json(
-        { message: "Please provide a valid LinkedIn profile URL" },
-        { status: 400 }
-      );
-    }
-
-    if (rawText && rawText.length <= 50) {
-      return NextResponse.json(
-        { message: "Profile text must be at least 50 characters" },
-        { status: 400 }
-      );
-    }
-
-    // TODO: Implement actual AI analysis here
-    // For now, return a placeholder response
-    const result = {
-      analysis:
-        "Your profile shows strong technical skills with a focus on software development. Consider highlighting specific achievements with metrics to stand out more.",
-      bannerConcept:
-        "A modern gradient banner featuring subtle tech iconography that reflects your expertise in software engineering. Colors: deep blue to teal gradient with clean typography.",
-      jobMatches: [
-        "Senior Software Engineer at tech startups",
-        "Full-Stack Developer at SaaS companies",
-        "Technical Lead at growth-stage companies",
-      ],
-    };
-
-    return NextResponse.json(result);
-  } catch {
-    return NextResponse.json(
-      { message: "Failed to analyze profile" },
-      { status: 500 }
-    );
+  if (!url && !rawText) {
+    return Response.json({ error: "URL or text required" }, { status: 400 })
   }
+
+  const profile = url
+    ? await fetchLinkedInProfile(url)
+    : { raw: rawText, experience: rawText }
+
+  const [a, b, j] = await Promise.allSettled([
+    analyzeProfile(profile),
+    generateBannerConcept(profile),
+    fetchJobRecommendations(profile),
+  ])
+
+  return Response.json({
+    analysis: a.status === "fulfilled" ? a.value : null,
+    banner: b.status === "fulfilled" ? b.value : null,
+    jobs: j.status === "fulfilled" ? j.value : null,
+  })
 }
