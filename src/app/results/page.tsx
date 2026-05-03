@@ -1,186 +1,180 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { ArrowLeft, TrendingUp, Share2, Download, Sparkles } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ResultsTabs } from "@/components/results-tabs"
-import { LoadingSkeleton } from "@/components/loading-skeleton"
-import type { AnalysisResult } from "@/types/analysis"
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+import {
+  ArrowLeft,
+  BarChart3,
+  BriefcaseBusiness,
+  ImageIcon,
+  Sparkles,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ResultsTabs } from '@/components/results-tabs';
+import { LoadingSkeleton } from '@/components/loading-skeleton';
+import type { AnalysisResult } from '@/types/analysis';
+
+type StoredResultState =
+  | { result: AnalysisResult; error: false }
+  | { result: null; error: true }
+  | { result: null; error: false };
+
+function readStoredResult(): StoredResultState {
+  if (typeof window === 'undefined') {
+    return { result: null, error: false };
+  }
+
+  const stored = sessionStorage.getItem('linkprofile_result');
+  if (!stored) {
+    return { result: null, error: true };
+  }
+
+  try {
+    return { result: JSON.parse(stored) as AnalysisResult, error: false };
+  } catch {
+    return { result: null, error: true };
+  }
+}
 
 export default function ResultsPage() {
-  const [result, setResult] = useState<AnalysisResult | null>(null)
-  const [error, setError] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem("linkprofile_result")
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as AnalysisResult
-        setResult(parsed)
-      } catch {
-        setError(true)
-      }
-    } else {
-      setError(true)
-    }
-    setIsLoading(false)
-  }, [])
+  const { result, error } = readStoredResult();
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return "bg-emerald-50 text-emerald-700 border-emerald-200"
-    if (score >= 50) return "bg-amber-50 text-amber-700 border-amber-200"
-    return "bg-red-50 text-red-700 border-red-200"
-  }
+    if (score >= 70)
+      return 'bg-green-500/10 text-green-600 border-green-500/20';
+    if (score >= 50)
+      return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20';
+    return 'bg-red-500/10 text-red-600 border-red-500/20';
+  };
 
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return "Excellent"
-    if (score >= 70) return "Good"
-    if (score >= 50) return "Average"
-    return "Needs Work"
-  }
-
-  const getScoreGradient = (score: number) => {
-    if (score >= 70) return "from-emerald-500 to-teal-500"
-    if (score >= 50) return "from-amber-500 to-orange-500"
-    return "from-red-500 to-rose-500"
-  }
-
-  if (isLoading || (!result && !error)) {
+  if (!result && !error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-6 py-12">
+      <div className="mx-auto w-full max-w-3xl px-4 py-12">
         <LoadingSkeleton />
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className="relative">
-        <div className="dot-pattern absolute inset-0 opacity-40" />
-        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center justify-center px-6 py-24">
-          <Card className="w-full max-w-md border-border/60 bg-card text-center soft-shadow">
-            <CardHeader>
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <Sparkles className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <CardTitle className="text-xl">No results found</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-6 text-muted-foreground">
-                We couldn&apos;t find any analysis results. Please try analyzing a profile first.
-              </p>
-              <Link href="/">
-                <Button className="gradient-btn gap-2 border-0 text-white">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to home
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
-
-  const profileScore = result?.analysis?.profileScore ?? 0
-
-  return (
-    <div className="relative min-h-screen">
-      <div className="dot-pattern absolute inset-0 opacity-40" />
-      
-      <div className="relative mx-auto w-full max-w-4xl px-6 py-8">
-        {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center px-4 py-24">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>No results found.</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-6">
+              We couldn&apos;t find any analysis results. Please try analyzing a
+              profile first.
+            </p>
             <Link href="/">
-              <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-border/60 bg-card">
-                <ArrowLeft className="h-4 w-4" />
-                <span className="sr-only">Back to home</span>
+              <Button>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Go back
               </Button>
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Analysis Results</h1>
-              <p className="text-sm text-muted-foreground">Your personalized profile insights</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="gap-2 rounded-lg border-border/60 bg-card">
-              <Share2 className="h-4 w-4" />
-              Share
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const profileScore = result?.analysis?.profileScore ?? 0;
+  const bannerTheme = result?.banner?.theme ?? 'creative';
+  const jobCount = result?.jobs?.length ?? 0;
+
+  return (
+    <div className="relative isolate min-h-full overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#fbfcff_42%,#f4f8ff_100%)]">
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(79,70,229,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,0.035)_1px,transparent_1px)] bg-[size:32px_32px]" />
+      <div className="absolute top-28 left-[-180px] -z-10 h-[430px] w-[430px] rounded-full bg-fuchsia-400/30 blur-[95px]" />
+      <div className="absolute top-[520px] right-[-190px] -z-10 h-[520px] w-[520px] rounded-full bg-blue-500/35 blur-[105px]" />
+      <Sparkles className="absolute top-24 right-[12%] hidden h-9 w-9 text-indigo-100 md:block" />
+
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+        <div className="mb-8 flex items-center justify-between">
+          <Link href="/">
+            <Button
+              variant="ghost"
+              className="rounded-xl border border-slate-200 bg-white/80 px-4 text-slate-700 shadow-sm backdrop-blur hover:bg-white hover:text-blue-600"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </Button>
-            <Button variant="outline" size="sm" className="gap-2 rounded-lg border-border/60 bg-card">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
-          </div>
+          </Link>
+          {result?.analysis && (
+            <Badge
+              variant="outline"
+              className={`rounded-full px-4 py-2 text-sm font-bold ${getScoreColor(profileScore)}`}
+            >
+              Score: {profileScore}/100
+            </Badge>
+          )}
         </div>
 
-        {/* Score Card */}
-        {result?.analysis && (
-          <div className="glass-card soft-shadow-lg mb-8 rounded-2xl p-6">
-            <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-              <div className="flex items-center gap-6">
-                <div className="relative flex h-28 w-28 items-center justify-center">
-                  <svg className="h-28 w-28 -rotate-90 transform" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="6"
-                      className="text-muted"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      fill="none"
-                      stroke={`url(#scoreGradient)`}
-                      strokeWidth="6"
-                      strokeLinecap="round"
-                      strokeDasharray={`${(profileScore / 100) * 264} 264`}
-                    />
-                    <defs>
-                      <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#5b5bd6" />
-                        <stop offset="100%" stopColor="#3b82f6" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold">{profileScore}</span>
-                    <span className="text-xs text-muted-foreground">/100</span>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-semibold">Profile Score</h2>
-                    <Badge variant="outline" className={getScoreColor(profileScore)}>
-                      {getScoreLabel(profileScore)}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                    Based on completeness, engagement potential, and industry best practices
-                  </p>
-                </div>
+        <section className="mb-9 overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-[0_24px_80px_rgba(51,65,130,0.12)] backdrop-blur">
+          <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="p-7 sm:p-9">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-700">
+                <Sparkles className="h-4 w-4 text-amber-400" />
+                AI profile report
               </div>
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">
-                <TrendingUp className="h-4 w-4" />
-                <span className="text-sm font-medium">Top 25% of profiles</span>
-              </div>
+              <h1 className="max-w-3xl text-4xl leading-tight font-extrabold text-balance text-slate-950 sm:text-5xl">
+                Your LinkedIn profile results are ready
+              </h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+                Review your profile score, sharpen your positioning, and turn
+                the recommendations into a stronger LinkedIn presence.
+              </p>
+            </div>
+
+            <div className="grid border-t border-slate-200 bg-gradient-to-br from-indigo-50/80 to-sky-50/80 sm:grid-cols-3 lg:grid-cols-1 lg:border-t-0 lg:border-l">
+              <ResultStat
+                icon={<BarChart3 className="h-5 w-5" />}
+                label="Profile score"
+                value={`${profileScore}/100`}
+              />
+              <ResultStat
+                icon={<ImageIcon className="h-5 w-5" />}
+                label="Banner theme"
+                value={bannerTheme}
+              />
+              <ResultStat
+                icon={<BriefcaseBusiness className="h-5 w-5" />}
+                label="Job matches"
+                value={`${jobCount}`}
+              />
             </div>
           </div>
-        )}
+        </section>
 
-        {/* Results tabs */}
         <ResultsTabs data={result!} />
       </div>
     </div>
-  )
+  );
+}
+
+function ResultStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-4 border-b border-slate-200/80 p-6 last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0 lg:border-r-0 lg:border-b lg:last:border-b-0">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-blue-500 text-white shadow-lg shadow-blue-500/20">
+        {icon}
+      </div>
+      <div>
+        <p className="text-xs font-bold text-slate-500 uppercase">{label}</p>
+        <p className="mt-1 text-xl font-extrabold text-slate-950 capitalize">
+          {value}
+        </p>
+      </div>
+    </div>
+  );
 }

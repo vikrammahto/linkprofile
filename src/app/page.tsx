@@ -1,165 +1,277 @@
-'use client';
-
-import { useState } from 'react';
 import { UrlInputForm } from '@/components/url-input-form';
-import { BarChart3, Palette, Briefcase, Shield, Zap, Users } from 'lucide-react';
+import type { ReactNode } from 'react';
+import {
+  BarChart3,
+  BriefcaseBusiness,
+  ImageIcon,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  Zap,
+} from 'lucide-react';
 
-const features = [
-  {
-    icon: BarChart3,
-    title: 'Profile Analysis',
-    description: 'Get a comprehensive breakdown of your skills, strengths, and areas for improvement.',
-    color: 'bg-blue-50 text-blue-600',
-  },
-  {
-    icon: Palette,
-    title: 'Banner Concepts',
-    description: 'Receive personalized LinkedIn banner design ideas that match your professional brand.',
-    color: 'bg-purple-50 text-purple-600',
-  },
-  {
-    icon: Briefcase,
-    title: 'Job Matches',
-    description: 'Discover job opportunities aligned with your experience, skills, and career goals.',
-    color: 'bg-emerald-50 text-emerald-600',
-  },
+const trustLogos = [
+  { name: 'Google', className: 'text-[#4285f4]' },
+  { name: 'Microsoft', className: 'text-[#737373]' },
+  { name: 'amazon', className: 'text-black' },
+  { name: 'Meta', className: 'text-[#0866ff]' },
+  { name: 'NETFLIX', className: 'text-[#e50914]' },
 ];
 
-const steps = [
-  { number: '01', title: 'Upload or paste', description: 'Share your LinkedIn profile via PDF or text' },
-  { number: '02', title: 'AI analyzes', description: 'Our AI processes your profile in seconds' },
-  { number: '03', title: 'Get insights', description: 'Receive actionable recommendations' },
+const valueProps = [
+  {
+    icon: Zap,
+    title: 'Fast & Accurate',
+    body: 'AI analyzes your profile in seconds',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Private & Secure',
+    body: 'Your data is encrypted and never stored',
+  },
+  {
+    icon: Target,
+    title: 'Personalized',
+    body: 'Tailored insights just for you',
+  },
+  {
+    icon: Rocket,
+    title: 'Career Focused',
+    body: 'Built to help you grow faster',
+  },
 ];
 
 export default function Home() {
-  const [demoText, setDemoText] = useState('');
-
   return (
-    <div className="relative">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-6 pb-20 pt-16 sm:pb-28 sm:pt-24">
-        {/* Background dot pattern */}
-        <div className="dot-pattern absolute inset-0 opacity-40" />
-        
-        <div className="relative mx-auto max-w-6xl">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-16">
-            {/* Left: Hero content */}
-            <div className="flex-1 text-center lg:pt-8 lg:text-left">
-              {/* Badge */}
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-sm font-medium text-primary">
-                <Zap className="h-3.5 w-3.5" />
-                AI-powered LinkedIn analysis
-              </div>
+    <div className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#fbfcff_48%,#f4f8ff_100%)]">
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(79,70,229,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,0.035)_1px,transparent_1px)] bg-[size:32px_32px]" />
+      <div className="absolute top-48 left-[-180px] -z-10 h-[420px] w-[420px] rounded-full bg-fuchsia-400/35 blur-[90px]" />
+      <div className="absolute top-[670px] right-[-160px] -z-10 h-[520px] w-[520px] rounded-full bg-blue-500/40 blur-[105px]" />
+      <Sparkles className="absolute top-72 left-10 hidden h-9 w-9 text-white drop-shadow-[0_0_18px_rgba(124,58,237,0.35)] md:block" />
+      <Sparkles className="absolute top-64 right-[14%] hidden h-9 w-9 text-indigo-100 md:block" />
 
-              {/* Headline */}
-              <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Analyze your LinkedIn profile with{' '}
-                <span className="gradient-text">AI</span>
-              </h1>
-
-              {/* Subheadline */}
-              <p className="mx-auto mt-6 max-w-xl text-pretty text-lg text-muted-foreground lg:mx-0">
-                Get a complete profile breakdown, banner design ideas, and job 
-                recommendations in seconds.
-              </p>
-
-              {/* Trust indicators */}
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 lg:justify-start">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Shield className="h-4 w-4 text-success" />
-                  <span>Your data is secure</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4 text-primary" />
-                  <span>10K+ profiles analyzed</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Form card */}
-            <div className="mx-auto mt-12 w-full max-w-lg lg:mx-0 lg:mt-0">
-              <div className="glass-card soft-shadow-lg rounded-2xl p-6 sm:p-8">
-                <UrlInputForm defaultText={demoText} />
-              </div>
-            </div>
+      <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 pt-16 pb-16 sm:px-6 lg:pt-20">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-5 py-2 text-sm font-semibold text-indigo-700">
+            <Sparkles className="h-4 w-4 text-amber-400" />
+            AI-powered LinkedIn analysis
           </div>
+          <h1 className="text-5xl leading-[1.08] font-extrabold text-balance text-slate-950 sm:text-6xl lg:text-7xl">
+            Analyze your LinkedIn profile with{' '}
+            <span className="bg-gradient-to-r from-violet-700 to-blue-500 bg-clip-text text-transparent">
+              AI
+            </span>
+          </h1>
+          <p className="mx-auto mt-7 max-w-2xl text-xl leading-8 text-pretty text-slate-600">
+            Get a complete profile breakdown, banner design ideas, and job
+            recommendations in seconds.
+          </p>
         </div>
-      </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="border-y border-border/60 bg-muted/30 px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-12 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              How it works
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Get started in three simple steps
-            </p>
-          </div>
+        <div className="mt-12 grid w-full items-start gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.85fr)]">
+          <UrlInputForm />
 
-          <div className="grid gap-8 md:grid-cols-3">
-            {steps.map((step, index) => (
-              <div key={step.number} className="relative text-center">
-                {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-8 hidden h-px w-full bg-border md:block" />
-                )}
-                <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-card soft-shadow border border-border/60">
-                  <span className="text-xl font-bold text-primary">{step.number}</span>
-                </div>
-                <h3 className="mb-2 font-semibold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.description}</p>
+          <aside className="grid gap-5 lg:pt-0">
+            <InsightCard
+              icon={<BarChart3 className="h-7 w-7" />}
+              iconClassName="from-violet-400 to-violet-700"
+              title="Profile Analysis"
+              body="Get a detailed breakdown of your skills, strengths, and areas to improve."
+            >
+              <div className="mt-5 rounded-xl bg-white p-4 shadow-sm">
+                <Metric
+                  label="Communication"
+                  value="92%"
+                  className="bg-violet-500"
+                />
+                <Metric
+                  label="Leadership"
+                  value="75%"
+                  className="bg-violet-500"
+                />
+                <Metric
+                  label="Problem Solving"
+                  value="60%"
+                  className="bg-blue-500"
+                />
               </div>
+            </InsightCard>
+
+            <InsightCard
+              icon={<ImageIcon className="h-7 w-7" />}
+              iconClassName="from-sky-400 to-blue-600"
+              title="Banner Concepts"
+              body="Personalized LinkedIn banner ideas that reflect your professional brand."
+            >
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="h-12 rounded-lg bg-[linear-gradient(135deg,#17084a,#7c3aed_48%,#101a5c)]" />
+                <div className="h-12 rounded-lg bg-[linear-gradient(135deg,#74d5ff,#1d4ed8_58%,#233876)]" />
+                <div className="h-12 rounded-lg bg-[linear-gradient(135deg,#d8e2ef,#516f9c_48%,#263b57)]" />
+              </div>
+            </InsightCard>
+
+            <InsightCard
+              icon={<BriefcaseBusiness className="h-7 w-7" />}
+              iconClassName="from-emerald-400 to-green-600"
+              title="Job Matches"
+              body="Discover roles that match your profile and career goals."
+            >
+              <div className="mt-5 flex flex-wrap gap-2">
+                {['Product Manager', 'AI/ML Engineer', 'Growth Engineer'].map(
+                  (role) => (
+                    <span
+                      key={role}
+                      className="rounded-full border border-emerald-200 bg-white px-4 py-1.5 text-xs font-semibold text-slate-800"
+                    >
+                      {role}
+                    </span>
+                  ),
+                )}
+                <span className="rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-slate-600">
+                  +12 more
+                </span>
+              </div>
+            </InsightCard>
+          </aside>
+        </div>
+
+        <section
+          id="examples"
+          className="mt-16 flex w-full flex-col items-center gap-7"
+        >
+          <p className="text-xs font-bold tracking-[0.22em] text-slate-500 uppercase">
+            Trusted by professionals at
+          </p>
+          <div className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-x-11 gap-y-5">
+            {trustLogos.map((logo) => (
+              <span
+                key={logo.name}
+                className={`text-2xl font-bold ${logo.className}`}
+              >
+                {logo.name}
+              </span>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section id="features" className="px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-12 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Everything you need to stand out
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Comprehensive AI-powered tools to optimize your professional presence
-            </p>
+          <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white/90 p-7 shadow-[0_18px_50px_rgba(51,65,130,0.10)]">
+            <div className="flex gap-5">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-blue-200 to-violet-200">
+                <div className="absolute inset-x-5 top-4 h-8 rounded-full bg-slate-900" />
+                <div className="absolute inset-x-4 bottom-0 h-11 rounded-t-full bg-blue-600" />
+                <div className="absolute top-7 left-5 h-3 w-3 rounded-full bg-white" />
+                <div className="absolute top-7 right-5 h-3 w-3 rounded-full bg-white" />
+              </div>
+              <div>
+                <p className="text-lg leading-7 text-slate-950">
+                  &quot;LinkProfile gave me insights I never knew about my
+                  profile. The banner ideas are fire and the job recommendations
+                  were spot on!&quot;
+                </p>
+                <div className="mt-5 flex items-center gap-4">
+                  <div className="grid h-8 w-8 grid-cols-2 overflow-hidden rounded-sm">
+                    <span className="bg-[#f25022]" />
+                    <span className="bg-[#7fba00]" />
+                    <span className="bg-[#00a4ef]" />
+                    <span className="bg-[#ffb900]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-950">
+                      Arjun Sharma
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      Product Manager @ Microsoft
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group rounded-xl border border-border/60 bg-card p-6 soft-shadow transition-all hover:border-primary/30 hover:shadow-md"
-              >
-                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${feature.color}`}>
-                  <feature.icon className="h-6 w-6" />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {feature.description}
+          <div className="flex gap-4">
+            <span className="h-2 w-2 rounded-full bg-violet-600" />
+            <span className="h-2 w-2 rounded-full bg-indigo-200" />
+            <span className="h-2 w-2 rounded-full bg-indigo-200" />
+            <span className="h-2 w-2 rounded-full bg-indigo-200" />
+            <span className="h-2 w-2 rounded-full bg-indigo-200" />
+          </div>
+        </section>
+
+        <section
+          id="how-it-works"
+          className="mt-7 grid w-full gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-[0_18px_60px_rgba(51,65,130,0.10)] sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {valueProps.map((item) => (
+            <div
+              key={item.title}
+              className="flex gap-4 p-7 lg:border-r lg:border-slate-200/80 lg:last:border-r-0"
+            >
+              <item.icon className="mt-1 h-5 w-5 shrink-0 text-violet-600" />
+              <div>
+                <h2 className="text-sm font-bold text-slate-950">
+                  {item.title}
+                </h2>
+                <p className="mt-1 text-sm leading-5 text-slate-600">
+                  {item.body}
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ))}
+        </section>
       </section>
+    </div>
+  );
+}
 
-      {/* CTA Section */}
-      <section className="border-t border-border/60 bg-gradient-to-b from-primary/5 to-transparent px-6 py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Ready to optimize your profile?
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Join thousands of professionals who have improved their LinkedIn presence with AI-powered insights.
-          </p>
-          <button className="gradient-btn mt-8 rounded-xl px-8 py-3 text-base font-semibold text-white">
-            Get Started Free
-          </button>
+function InsightCard({
+  icon,
+  iconClassName,
+  title,
+  body,
+  children,
+}: {
+  icon: ReactNode;
+  iconClassName: string;
+  title: string;
+  body: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-3xl border border-indigo-100 bg-white/80 p-7 shadow-[0_20px_70px_rgba(51,65,130,0.10)] backdrop-blur">
+      <div className="flex gap-5">
+        <div
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg ${iconClassName}`}
+        >
+          {icon}
         </div>
-      </section>
+        <div>
+          <h2 className="text-lg font-bold text-slate-950">{title}</h2>
+          <p className="mt-4 text-sm leading-6 text-slate-600">{body}</p>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className: string;
+}) {
+  return (
+    <div className="grid grid-cols-[110px_1fr] items-center gap-4 py-1.5 text-xs text-slate-700">
+      <span>{label}</span>
+      <div className="h-2 rounded-full bg-slate-100">
+        <div
+          className={`h-full rounded-full ${className}`}
+          style={{ width: value }}
+        />
+      </div>
     </div>
   );
 }
