@@ -21,8 +21,9 @@ export async function POST(req: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer()
-    const { text } = await extractText(new Uint8Array(arrayBuffer))
-    const cleanText = text.trim()
+    const result = await extractText(new Uint8Array(arrayBuffer))
+    const text = typeof result === 'string' ? result : (result?.text ?? '')
+    const cleanText = String(text).trim()
 
     if (!cleanText || cleanText.length < 50) {
       return Response.json(
