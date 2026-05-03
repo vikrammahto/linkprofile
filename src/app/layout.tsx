@@ -1,18 +1,18 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
-import "./globals.css";
-import { Toaster } from "sonner";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Link from 'next/link';
+import './globals.css';
+import { Toaster } from 'sonner';
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+  variable: '--font-inter',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "ProfileIQ - Analyze Your LinkedIn Profile with AI",
+  title: 'LinkProfile - Analyze Your LinkedIn Profile with AI',
   description:
-    "Get a profile breakdown, banner design concept, and job recommendations in 30 seconds.",
+    'Get a profile breakdown, banner design concept, and job recommendations in 30 seconds.',
 };
 
 export default function RootLayout({
@@ -21,18 +21,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased bg-background`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <html
+      lang="en"
+      className={`${inter.variable} bg-background h-full antialiased`}
+    >
+      <body className="bg-background text-foreground flex min-h-full flex-col font-sans">
+        <header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
           <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
             <Link href="/" className="text-lg font-semibold tracking-tight">
-              ProfileIQ
+              LinkProfile
             </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/vikrammahto"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="GitHub"
             >
               <svg

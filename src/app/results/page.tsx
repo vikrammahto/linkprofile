@@ -16,7 +16,7 @@ export default function ResultsPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("profileiq_result")
+    const stored = sessionStorage.getItem("linkprofile_result")
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as AnalysisResult
