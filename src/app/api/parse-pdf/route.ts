@@ -1,4 +1,4 @@
-import pdf from "pdf-parse"
+import { extractText } from "unpdf"
 
 export const maxDuration = 30
 
@@ -21,19 +21,17 @@ export async function POST(req: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const { text } = await extractText(new Uint8Array(arrayBuffer))
+    const cleanText = text.trim()
 
-    const data = await pdf(buffer)
-    const text = data.text.trim()
-
-    if (!text || text.length < 50) {
+    if (!cleanText || cleanText.length < 50) {
       return Response.json(
-        { error: "Could not extract enough text from the PDF. Please try pasting your profile text instead." },
+        { error: "Could not extract enough text from PDF. Please try pasting your profile text instead." },
         { status: 400 }
       )
     }
 
-    return Response.json({ text })
+    return Response.json({ text: cleanText })
   } catch (error) {
     console.error("[v0] PDF parse error:", error)
     return Response.json(
