@@ -2,6 +2,9 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
+import { ProfileAnalysisTab } from "@/components/profile-analysis-tab"
+import { BannerConceptTab } from "@/components/banner-concept-tab"
+import { JobMatchesTab } from "@/components/job-matches-tab"
 import type { AnalysisResult } from "@/types/analysis"
 
 export const ResultsTabs = ({ data }: { data: AnalysisResult }) => {
@@ -14,33 +17,45 @@ export const ResultsTabs = ({ data }: { data: AnalysisResult }) => {
       </TabsList>
 
       <TabsContent value="analysis" className="mt-6">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">
-              Profile analysis content will be displayed here.
-            </p>
-          </CardContent>
-        </Card>
+        {data.analysis ? (
+          <ProfileAnalysisTab data={data.analysis} />
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">
+                Profile analysis unavailable.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </TabsContent>
 
       <TabsContent value="banner" className="mt-6">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">
-              Banner concept content will be displayed here.
-            </p>
-          </CardContent>
-        </Card>
+        {data.banner ? (
+          <BannerConceptTab data={data.banner} />
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">
+                Banner concept unavailable.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </TabsContent>
 
       <TabsContent value="jobs" className="mt-6">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">
-              Job matches content will be displayed here.
-            </p>
-          </CardContent>
-        </Card>
+        {data.jobs ? (
+          <JobMatchesTab data={data.jobs} />
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">
+                Job matches unavailable.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </TabsContent>
     </Tabs>
   )

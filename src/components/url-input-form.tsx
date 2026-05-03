@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -8,12 +8,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+const LOADING_MESSAGES = [
+  { time: 0, message: "Fetching profile data..." },
+  { time: 5000, message: "Analyzing with AI..." },
+  { time: 12000, message: "Almost there..." },
+];
+
 export const UrlInputForm = () => {
   const router = useRouter();
   const [isPasteMode, setIsPasteMode] = useState(false);
   const [url, setUrl] = useState("");
   const [rawText, setRawText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0].message);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (isLoading) {
+      startTimeRef.current = Date.now();
+      setLoadingMessage(LOADING_MESSAGES[0].message);
+      
+      intervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTimeRef.current;
+        
+        if (elapsed >= 12000) {
+          setLoadingMessage(LOADING_MESSAGES[2].message);
+        } else if (elapsed >= 5000) {
+          setLoadingMessage(LOADING_MESSAGES[1].message);
+        }
+      }, 500);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isLoading]);
 
   const validateInput = (): boolean => {
     if (!isPasteMode) {
@@ -113,6 +150,12 @@ export const UrlInputForm = () => {
           "Analyze profile"
         )}
       </Button>
+
+      {isLoading && (
+        <p className="text-center text-sm text-muted-foreground">
+          {loadingMessage}
+        </p>
+      )}
     </form>
   );
 };
