@@ -1,7 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk"
+import { generateText, Output } from "ai"
+import { z } from "zod"
 import type { JobMatch } from "@/types/analysis"
 
-const anthropic = new Anthropic()
+const jobScoresSchema = z.array(z.object({
+  matchScore: z.number().min(0).max(100),
+  matchReason: z.string(),
+}))
 
 interface JSearchJob {
   job_title: string
@@ -49,39 +53,31 @@ export async function fetchJobRecommendations(
     return []
   }
 
-  // Step 3: Score jobs with Claude
+  // Step 3: Score jobs with AI
   const jobsForScoring = jobs.map((job) => ({
     job_title: job.job_title,
     employer_name: job.employer_name,
     job_description: job.job_description?.slice(0, 300) ?? "",
   }))
 
-  const message = await anthropic.messages.create({
-    model: "claude-opus-4-5",
-    max_tokens: 1000,
+  const result = await generateText({
+    model: "anthropic/claude-sonnet-4",
     messages: [
       {
         role: "user",
-        content: `Score these job listings against this profile.
-Return ONLY a JSON array with one object per job in the same order:
-[{ "matchScore": "number 0-100", "matchReason": "string max 15 words" }]
+        content: `Score these job listings against this profile. Return one score per job in the same order.
 Profile: ${JSON.stringify(profileData)}
 Jobs: ${JSON.stringify(jobsForScoring)}`,
       },
     ],
+    output: Output.object({ schema: jobScoresSchema }),
   })
 
-  const textContent = message.content.find((block) => block.type === "text")
-  if (!textContent || textContent.type !== "text") {
-    throw new Error("No text response from Claude")
+  if (!result.object) {
+    throw new Error("Failed to generate job scores")
   }
 
-  let scores: { matchScore: number; matchReason: string }[]
-  try {
-    scores = JSON.parse(textContent.text)
-  } catch {
-    throw new Error("Failed to parse job scores JSON: " + textContent.text)
-  }
+  const scores = result.object
 
   // Step 4: Merge scores into jobs
   return jobs.map((job, index) => ({
