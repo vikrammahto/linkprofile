@@ -15,16 +15,27 @@ export async function POST(req: Request) {
     // Parse the raw text into a structured profile object
     const profile = parseProfileText(rawText)
 
+    console.log("[v0] Starting AI analysis with profile:", JSON.stringify(profile).slice(0, 200))
+
     const [a, b, j] = await Promise.allSettled([
       analyzeProfile(profile),
       generateBannerConcept(profile),
       fetchJobRecommendations(profile),
     ])
 
+    console.log("[v0] Analysis result:", a.status, a.status === "rejected" ? String(a.reason) : "success")
+    console.log("[v0] Banner result:", b.status, b.status === "rejected" ? String(b.reason) : "success")
+    console.log("[v0] Jobs result:", j.status, j.status === "rejected" ? String(j.reason) : "success")
+
     return Response.json({
       analysis: a.status === "fulfilled" ? a.value : null,
       banner: b.status === "fulfilled" ? b.value : null,
       jobs: j.status === "fulfilled" ? j.value : null,
+      errors: {
+        analysis: a.status === "rejected" ? String(a.reason) : null,
+        banner: b.status === "rejected" ? String(b.reason) : null,
+        jobs: j.status === "rejected" ? String(j.reason) : null,
+      }
     })
   } catch (error) {
     console.error("[v0] API route error:", error)

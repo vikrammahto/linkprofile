@@ -32,4 +32,9 @@ export interface AnalysisResult {
   analysis: ProfileAnalysis | null
   banner: BannerConcept | null
   jobs: JobMatch[] | null
+  errors?: {
+    analysis: string | null
+    banner: string | null
+    jobs: string | null
+  }
 }
