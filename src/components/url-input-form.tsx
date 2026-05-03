@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Loader2, Upload, FileText, X } from 'lucide-react';
+import { Loader2, Upload, FileText, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -12,6 +12,29 @@ const LOADING_MESSAGES = [
   { time: 5000, message: 'Generating insights with AI...' },
   { time: 12000, message: 'Almost there...' },
 ];
+
+const DEMO_PROFILE = `Bill Gates
+Co-chair, Bill & Melinda Gates Foundation
+
+About:
+Co-chair of the Bill & Melinda Gates Foundation. Founder of Breakthrough Energy. Co-founder of Microsoft. Voracious reader. Avid traveler. Active blogger.
+
+Experience:
+Co-chair at Bill & Melinda Gates Foundation (2000 - Present)
+Leading global initiatives in healthcare, education, and poverty reduction. Directing billions in philanthropic investments toward solving the world's toughest problems.
+
+Founder at Breakthrough Energy (2015 - Present)
+Building a network of investment vehicles, philanthropic programs, and advocacy initiatives to accelerate the clean energy transition.
+
+Co-founder at Microsoft (1975 - 2020)
+Co-founded and led Microsoft from a startup to the world's most valuable company. Pioneered personal computing software that transformed how billions of people work and communicate.
+
+Skills:
+Technology Strategy, Software Development, Philanthropy, Global Health, Climate Change, Leadership, Public Speaking, Investment, Innovation, Business Development
+
+Education:
+Harvard University (dropped out to found Microsoft)
+Lakeside School, Seattle`;
 
 export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   const router = useRouter();
@@ -119,6 +142,12 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     }
   };
 
+  const loadDemo = () => {
+    setRawText(DEMO_PROFILE);
+    setFileName(null);
+    toast.success('Demo profile loaded');
+  };
+
   const validateInput = (): boolean => {
     if (rawText.trim().length < 50) {
       toast.error('Please enter at least 50 characters of profile text');
@@ -169,9 +198,9 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* File Upload Section */}
-      <div className="border-border hover:border-muted-foreground/50 rounded-lg border-2 border-dashed p-4 transition-colors">
+      <div className="rounded-xl border border-border/50 bg-secondary/30 p-5 transition-colors hover:border-border">
         <input
           ref={fileInputRef}
           type="file"
@@ -184,16 +213,22 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
 
         {fileName ? (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
-              <FileText className="text-muted-foreground h-4 w-4" />
-              <span className="font-medium">{fileName}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium">{fileName}</p>
+                <p className="text-xs text-muted-foreground">PDF uploaded</p>
+              </div>
             </div>
             <Button
               type="button"
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={clearFile}
               disabled={isLoading}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -201,22 +236,29 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
         ) : (
           <label
             htmlFor="pdf-upload"
-            className="flex cursor-pointer flex-col items-center gap-2"
+            className="flex cursor-pointer flex-col items-center gap-3 py-4"
           >
             {isParsing ? (
               <>
-                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-                <span className="text-muted-foreground text-sm">
-                  Parsing PDF...
-                </span>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+                <div className="text-center">
+                  <p className="font-medium">Parsing PDF...</p>
+                  <p className="text-sm text-muted-foreground">This may take a moment</p>
+                </div>
               </>
             ) : (
               <>
-                <Upload className="text-muted-foreground h-8 w-8" />
-                <span className="text-sm font-medium">Upload LinkedIn PDF</span>
-                <span className="text-muted-foreground text-xs">
-                  or paste your profile text below
-                </span>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-dashed border-border bg-secondary/50 transition-colors group-hover:border-primary">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div className="text-center">
+                  <p className="font-medium">Upload your LinkedIn PDF</p>
+                  <p className="text-sm text-muted-foreground">
+                    or paste your profile text below
+                  </p>
+                </div>
               </>
             )}
           </label>
@@ -232,37 +274,58 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
             setRawText(e.target.value);
             if (fileName) setFileName(null);
           }}
-          className="min-h-40 resize-none text-base"
+          className="min-h-36 resize-none rounded-xl border-border/50 bg-secondary/30 text-base placeholder:text-muted-foreground/60 focus:border-primary/50 focus:ring-primary/20"
           disabled={isLoading || isParsing}
         />
+        <div className="absolute bottom-3 right-3">
+          <span className="text-xs text-muted-foreground">
+            {rawText.length} characters
+          </span>
+        </div>
       </div>
 
-      <p className="text-muted-foreground text-xs">
-        Upload your LinkedIn profile PDF or paste your profile content. Include
-        your headline, about section, experience, and skills for the best
-        analysis.
-      </p>
+      {/* Helper text and demo button */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Include headline, about, experience, and skills for best results.
+        </p>
+        <button
+          type="button"
+          onClick={loadDemo}
+          className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
+          disabled={isLoading || isParsing}
+        >
+          Try demo
+        </button>
+      </div>
 
+      {/* Submit Button */}
       <Button
         type="submit"
         size="lg"
-        className="w-full"
+        className="w-full gap-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-base font-semibold shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50"
         disabled={isLoading || isParsing || rawText.trim().length < 50}
       >
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Analyzing...
+            <Loader2 className="h-5 w-5 animate-spin" />
+            {loadingMessage}
           </>
         ) : (
-          'Analyze profile'
+          <>
+            <Sparkles className="h-5 w-5" />
+            Analyze with AI
+          </>
         )}
       </Button>
 
+      {/* Loading progress indicator */}
       {isLoading && (
-        <p className="text-muted-foreground text-center text-sm">
-          {loadingMessage}
-        </p>
+        <div className="space-y-2">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
+            <div className="shimmer h-full w-full rounded-full bg-primary/30" />
+          </div>
+        </div>
       )}
     </form>
   );
