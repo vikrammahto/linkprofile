@@ -3,7 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Loader2, Upload, FileText, X } from 'lucide-react';
+import {
+  FileText,
+  Loader2,
+  LockKeyhole,
+  Sparkles,
+  Upload,
+  X,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -13,36 +20,21 @@ const LOADING_MESSAGES = [
   { time: 12000, message: 'Almost there...' },
 ];
 
-export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
+export const UrlInputForm = () => {
   const router = useRouter();
-  const [rawText, setRawText] = useState(defaultText ?? '');
+  const [rawText, setRawText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [loadingMessage, setLoadingMessage] = useState(
-    LOADING_MESSAGES[0].message,
-  );
+  const [loadingElapsed, setLoadingElapsed] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (defaultText) setRawText(defaultText);
-  }, [defaultText]);
-
-  useEffect(() => {
     if (isLoading) {
-      startTimeRef.current = Date.now();
-      setLoadingMessage(LOADING_MESSAGES[0].message);
-
       intervalRef.current = setInterval(() => {
-        const elapsed = Date.now() - startTimeRef.current;
-
-        if (elapsed >= 12000) {
-          setLoadingMessage(LOADING_MESSAGES[2].message);
-        } else if (elapsed >= 5000) {
-          setLoadingMessage(LOADING_MESSAGES[1].message);
-        }
+        setLoadingElapsed(Date.now() - startTimeRef.current);
       }, 500);
     } else {
       if (intervalRef.current) {
@@ -58,6 +50,10 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     };
   }, [isLoading]);
 
+  const loadingMessage =
+    LOADING_MESSAGES.findLast(({ time }) => loadingElapsed >= time)?.message ??
+    LOADING_MESSAGES[0].message;
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -67,8 +63,8 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File must be less than 5MB');
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File must be less than 10MB');
       return;
     }
 
@@ -133,6 +129,8 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
     if (!validateInput()) return;
 
     setIsLoading(true);
+    setLoadingElapsed(0);
+    startTimeRef.current = Date.now();
 
     try {
       const response = await fetch('/api/analyze', {
@@ -169,9 +167,29 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-4">
-      {/* File Upload Section */}
-      <div className="border-border hover:border-muted-foreground/50 rounded-lg border-2 border-dashed p-4 transition-colors">
+    <form
+      id="analyze"
+      onSubmit={handleSubmit}
+      className="w-full rounded-3xl border border-slate-200/80 bg-white/90 p-5 text-left shadow-[0_24px_80px_rgba(51,65,130,0.12)] backdrop-blur md:p-7"
+    >
+      <div className="grid grid-cols-2 rounded-t-2xl border border-b-0 border-slate-200 bg-white/80 text-sm font-semibold text-slate-600">
+        <label
+          htmlFor="pdf-upload"
+          className="flex cursor-pointer items-center justify-center gap-2 rounded-tl-2xl border-r border-slate-200 px-3 py-4 text-blue-700"
+        >
+          <Upload className="h-4 w-4" />
+          Upload PDF
+        </label>
+        <label
+          htmlFor="profile-text"
+          className="flex items-center justify-center gap-2 px-3 py-4"
+        >
+          <FileText className="h-4 w-4 text-slate-500" />
+          Paste Text
+        </label>
+      </div>
+
+      <div className="space-y-5 rounded-b-2xl border border-slate-200 bg-white p-4 shadow-inner shadow-slate-100/80 md:p-5">
         <input
           ref={fileInputRef}
           type="file"
@@ -182,71 +200,83 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
           disabled={isLoading || isParsing}
         />
 
-        {fileName ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
-              <FileText className="text-muted-foreground h-4 w-4" />
-              <span className="font-medium">{fileName}</span>
+        <div className="rounded-2xl border-2 border-dashed border-violet-300/80 bg-gradient-to-br from-white via-white to-blue-50/40 p-7 transition-colors hover:border-blue-400 md:p-10">
+          {fileName ? (
+            <div className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm">
+              <div className="flex items-center gap-2 text-sm">
+                <FileText className="h-4 w-4 text-blue-600" />
+                <span className="font-medium">{fileName}</span>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={clearFile}
+                disabled={isLoading}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={clearFile}
-              disabled={isLoading}
+          ) : (
+            <label
+              htmlFor="pdf-upload"
+              className="flex cursor-pointer flex-col items-center gap-3 text-center"
             >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        ) : (
-          <label
-            htmlFor="pdf-upload"
-            className="flex cursor-pointer flex-col items-center gap-2"
-          >
-            {isParsing ? (
-              <>
-                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-                <span className="text-muted-foreground text-sm">
-                  Parsing PDF...
-                </span>
-              </>
-            ) : (
-              <>
-                <Upload className="text-muted-foreground h-8 w-8" />
-                <span className="text-sm font-medium">Upload LinkedIn PDF</span>
-                <span className="text-muted-foreground text-xs">
-                  or paste your profile text below
-                </span>
-              </>
-            )}
-          </label>
-        )}
+              {isParsing ? (
+                <>
+                  <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+                  <span className="text-sm text-slate-500">Parsing PDF...</span>
+                </>
+              ) : (
+                <>
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-violet-600 shadow-md shadow-violet-200/60">
+                    <Upload className="h-9 w-9" />
+                  </span>
+                  <span className="text-lg font-bold text-slate-950">
+                    Upload LinkedIn PDF
+                  </span>
+                  <span className="text-sm text-slate-500">
+                    Drag and drop your file here, or click to browse
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    Max size: 10MB - Format: PDF
+                  </span>
+                </>
+              )}
+            </label>
+          )}
+        </div>
       </div>
 
-      {/* Text Input Section */}
+      <div className="my-5 flex items-center gap-3 text-xs font-medium text-slate-500">
+        <span className="h-px flex-1 bg-slate-200" />
+        <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
+          OR
+        </span>
+        <span className="h-px flex-1 bg-slate-200" />
+      </div>
+
       <div className="relative">
         <Textarea
+          id="profile-text"
           placeholder="Paste your LinkedIn profile text here (About section, Experience, Skills, etc.)"
           value={rawText}
           onChange={(e) => {
             setRawText(e.target.value);
             if (fileName) setFileName(null);
           }}
-          className="min-h-40 resize-none text-base"
+          className="min-h-32 resize-none rounded-2xl border-slate-200 bg-white p-5 pr-20 text-base shadow-sm focus-visible:ring-blue-500"
           disabled={isLoading || isParsing}
         />
+        <span className="absolute right-5 bottom-4 text-xs font-medium text-slate-500">
+          {rawText.length} / 8000
+        </span>
       </div>
-
-      <p className="text-muted-foreground text-xs">
-        Upload your LinkedIn profile PDF or paste your profile content. Include
-        your headline, about section, experience, and skills for the best
-        analysis.
-      </p>
 
       <Button
         type="submit"
         size="lg"
-        className="w-full"
+        className="mt-6 h-14 w-full rounded-xl bg-gradient-to-r from-violet-700 via-indigo-600 to-sky-500 text-base font-bold shadow-xl shadow-blue-500/25 hover:from-violet-600 hover:to-sky-400"
         disabled={isLoading || isParsing || rawText.trim().length < 50}
       >
         {isLoading ? (
@@ -255,12 +285,20 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
             Analyzing...
           </>
         ) : (
-          'Analyze profile'
+          <>
+            Analyze Profile
+            <Sparkles className="h-4 w-4" />
+          </>
         )}
       </Button>
 
+      <div className="mt-5 flex items-center justify-center gap-2 text-sm text-slate-500">
+        <LockKeyhole className="h-4 w-4 text-emerald-600" />
+        <span>Your data is secure and not stored</span>
+      </div>
+
       {isLoading && (
-        <p className="text-muted-foreground text-center text-sm">
+        <p className="mt-3 text-center text-sm text-slate-500">
           {loadingMessage}
         </p>
       )}
