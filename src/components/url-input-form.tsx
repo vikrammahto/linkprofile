@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -17,9 +17,12 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
   const router = useRouter();
   const [rawText, setRawText] = useState(defaultText ?? "");
   const [isLoading, setIsLoading] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0].message);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (defaultText) setRawText(defaultText);
@@ -52,6 +55,61 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
       }
     };
   }, [isLoading]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File must be less than 5MB");
+      return;
+    }
+
+    setIsParsing(true);
+    setFileName(file.name);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/parse-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to parse PDF");
+      }
+
+      setRawText(data.text);
+      toast.success("PDF parsed successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to parse PDF"
+      );
+      setFileName(null);
+    } finally {
+      setIsParsing(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const clearFile = () => {
+    setFileName(null);
+    setRawText("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const validateInput = (): boolean => {
     if (rawText.trim().length < 50) {
@@ -98,23 +156,80 @@ export const UrlInputForm = ({ defaultText }: { defaultText?: string }) => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
-      <Textarea
-        placeholder="Paste your LinkedIn profile text here (About section, Experience, Skills, etc.)"
-        value={rawText}
-        onChange={(e) => setRawText(e.target.value)}
-        className="min-h-40 resize-none text-base"
-        disabled={isLoading}
-      />
+      {/* File Upload Section */}
+      <div className="rounded-lg border-2 border-dashed border-border p-4 transition-colors hover:border-muted-foreground/50">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          onChange={handleFileChange}
+          className="hidden"
+          id="pdf-upload"
+          disabled={isLoading || isParsing}
+        />
+        
+        {fileName ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{fileName}</span>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clearFile}
+              disabled={isLoading}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <label
+            htmlFor="pdf-upload"
+            className="flex cursor-pointer flex-col items-center gap-2"
+          >
+            {isParsing ? (
+              <>
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Parsing PDF...</span>
+              </>
+            ) : (
+              <>
+                <Upload className="h-8 w-8 text-muted-foreground" />
+                <span className="text-sm font-medium">Upload LinkedIn PDF</span>
+                <span className="text-xs text-muted-foreground">
+                  or paste your profile text below
+                </span>
+              </>
+            )}
+          </label>
+        )}
+      </div>
+
+      {/* Text Input Section */}
+      <div className="relative">
+        <Textarea
+          placeholder="Paste your LinkedIn profile text here (About section, Experience, Skills, etc.)"
+          value={rawText}
+          onChange={(e) => {
+            setRawText(e.target.value);
+            if (fileName) setFileName(null);
+          }}
+          className="min-h-40 resize-none text-base"
+          disabled={isLoading || isParsing}
+        />
+      </div>
 
       <p className="text-xs text-muted-foreground">
-        Copy your profile content from LinkedIn and paste it above. Include your headline, about section, experience, and skills for the best analysis.
+        Upload your LinkedIn profile PDF or paste your profile content. Include your headline, about section, experience, and skills for the best analysis.
       </p>
 
       <Button
         type="submit"
         size="lg"
         className="w-full"
-        disabled={isLoading || rawText.trim().length < 50}
+        disabled={isLoading || isParsing || rawText.trim().length < 50}
       >
         {isLoading ? (
           <>
