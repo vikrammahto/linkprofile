@@ -14,15 +14,19 @@ const LOADING_MESSAGES = [
   { time: 12000, message: "Almost there..." },
 ];
 
-export const UrlInputForm = () => {
+export const UrlInputForm = ({ defaultUrl }: { defaultUrl?: string }) => {
   const router = useRouter();
   const [isPasteMode, setIsPasteMode] = useState(false);
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(defaultUrl ?? "");
   const [rawText, setRawText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0].message);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (defaultUrl) setUrl(defaultUrl);
+  }, [defaultUrl]);
 
   useEffect(() => {
     if (isLoading) {
